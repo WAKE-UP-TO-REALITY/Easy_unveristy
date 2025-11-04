@@ -1,0 +1,71 @@
+{% extends 'portal/base.html' %}
+
+{% block title %}Teacher Dashboard{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2>Welcome, {{ teacher.user.username }}</h2>
+        <p>Employee ID: {{ teacher.employee_id }}</p>
+        <p>Assigned Subject: <strong>{{ subject.get_name_display }} ({{ subject.code }})</strong></p>
+        <hr>
+
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card text-white bg-primary">
+                    <div class="card-body">
+                        <h5 class="card-title">Total Students</h5>
+                        <h2>{{ students_count }}</h2>
+                        <p class="card-text">Enrolled in your subject</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-white bg-warning">
+                    <div class="card-body">
+                        <h5 class="card-title">Pending Doubts</h5>
+                        <h2>{{ pending_doubts }}</h2>
+                        <p class="card-text">Waiting for response</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card text-white bg-success">
+                    <div class="card-body">
+                        <h5 class="card-title">Subject</h5>
+                        <h2>{{ subject.code }}</h2>
+                        <p class="card-text">{{ subject.get_name_display }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <h3>Quick Actions</h3>
+        <div class="row">
+            <div class="col-md-3 mb-3">
+                <a href="{% url 'mark_attendance' %}" class="btn btn-primary btn-lg w-100">
+                    Mark Attendance
+                </a>
+            </div>
+            <div class="col-md-3 mb-3">
+                <a href="{% url 'view_attendance' %}" class="btn btn-info btn-lg w-100">
+                    View Attendance
+                </a>
+            </div>
+            <div class="col-md-3 mb-3">
+                <a href="{% url 'upload_module' %}" class="btn btn-success btn-lg w-100">
+                    Upload Module
+                </a>
+            </div>
+            <div class="col-md-3 mb-3">
+                <a href="{% url 'teacher_doubts' %}" class="btn btn-warning btn-lg w-100">
+                    Student Doubts
+                    {% if pending_doubts > 0 %}
+                    <span class="badge bg-danger">{{ pending_doubts }}</span>
+                    {% endif %}
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

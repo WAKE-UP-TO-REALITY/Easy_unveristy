@@ -1,0 +1,54 @@
+{% extends 'portal/base.html' %}
+
+{% block title %}Student Doubts{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2>Student Doubts</h2>
+        <a href="{% url 'teacher_dashboard' %}" class="btn btn-secondary mb-3">← Back to Dashboard</a>
+        <hr>
+
+        {% if doubts %}
+        {% for doubt in doubts %}
+        <div class="card mb-3">
+            <div class="card-header">
+                <strong>From:</strong> {{ doubt.student.user.username }} ({{ doubt.student.enrollment_number }})
+                {% if doubt.is_resolved %}
+    <span class="badge bg-success float-end">✅ Resolved</span>
+{% else %}
+    <span class="badge bg-warning float-end">⏳ Pending</span>
+{% endif %}
+
+            </div>
+            <div class="card-body">
+                <h6 class="card-subtitle mb-2 text-muted">
+                    Submitted on: {{ doubt.created_at|date:"d M Y, h:i A" }}
+                </h6>
+                <p class="card-text"><strong>Student's Question:</strong></p>
+                <div class="alert alert-light">
+                    {{ doubt.question }}
+                </div>
+                
+                {% if doubt.response %}
+                <p class="card-text"><strong>Your Response:</strong></p>
+                <div class="alert alert-success">
+                    {{ doubt.response }}
+                </div>
+                <small class="text-muted">Resolved on: {{ doubt.resolved_at|date:"d M Y, h:i A" }}</small>
+                {% else %}
+                <a href="{% url 'respond_doubt' doubt.id %}" class="btn btn-primary">
+                    Respond to Doubt
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="alert alert-info">
+            No doubts submitted by students yet.
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

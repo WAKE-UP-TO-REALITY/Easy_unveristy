@@ -1,0 +1,216 @@
+{% extends 'portal/base.html' %}
+
+{% block title %}Student Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <!-- Welcome Section -->
+            <div class="card mb-4 bg-light">
+                <div class="card-body">
+                    <h2 class="mb-1">👋 Welcome, {{ student.user.username }}</h2>
+                    <p class="text-muted mb-0">Enrollment: <strong>{{ student.enrollment_number }}</strong></p>
+                </div>
+            </div>
+
+            <!-- Subject-wise Absence Alerts (Individual Popups at Top) -->
+            {% for subject, absence_count in subject_absences.items %}
+                {% if absence_count > 0 %}
+                <div class="alert {% if absence_count >= 3 %}alert-danger{% else %}alert-warning{% endif %} alert-dismissible fade show" role="alert">
+                    <strong>
+                        {% if absence_count >= 3 %}
+                            🔴 CRITICAL
+                        {% else %}
+                            ⚠️ WARNING
+                        {% endif %}
+                    </strong>
+                    - {{ subject.get_name_display }}
+                    <br>
+                    You have <strong>{{ absence_count }} absence(s)</strong> in this subject.
+                    {% if absence_count >= 3 %}
+                        <br>
+                        <small>🚨 <strong>Action Required:</strong> This is critical. Please contact your teacher.</small>
+                    {% endif %}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endif %}
+            {% endfor %}
+
+            <!-- Overall Alert for High Absences -->
+            {% if total_absences > 0 %}
+                <div class="alert alert-info alert-dismissible fade show" role="alert">
+                    <strong>📊 Attendance Summary</strong>
+                    <br>
+                    Total Absences: <strong class="text-danger">{{ total_absences }}</strong>
+                    {% if high_absence_subjects %}
+                        <br>
+                        <strong>Critical Subjects:</strong>
+                        {% for subject in high_absence_subjects %}
+                            <span class="badge bg-danger">{{ subject.get_name_display }}: {{ subject.absence_count }}</span>
+                        {% endfor %}
+                    {% endif %}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endif %}
+
+            <!-- Subjects & Attendance -->
+            <h3 class="mb-4">📚 Your Subjects & Attendance</h3>
+            <div class="row">
+                {% for subject, absence_count in subject_absences.items %}
+                    <div class="col-md-6 mb-3">
+                        <div class="card {% if absence_count >= 3 %}border-danger{% elif absence_count > 0 %}border-warning{% endif %}">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h5 class="card-title mb-2">{{ subject.get_name_display }}</h5>
+                                        <p class="card-text text-muted mb-2">
+                                            ⏰ Time: {{ subject.TIME_SLOTS|dictsort:subject.name }}
+                                        </p>
+                                        <p class="card-text text-muted">
+                                            📋 Code: <strong>{{ subject.code }}</strong>
+                                        </p>
+                                    </div>
+                                    <div>
+                                        {% if absence_count > 0 %}
+                                            {% if absence_count >= 3 %}
+                                                <span class="badge bg-danger fs-6" title="Critical absences">🔴 {{ absence_count }} Absent</span>
+                                            {% else %}
+                                                <span class="badge bg-warning text-dark fs-6" title="Moderate absences">🟡 {{ absence_count }} Absent</span>
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="badge bg-success fs-6">✅ Perfect</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="col-md-12">
+                        <div class="alert alert-info">
+                            No subjects assigned yet.
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <hr class="my-5">
+
+            <!-- Quick Links -->
+            <h3 class="mb-4">🔗 Quick Links</h3>
+            <div class="row">
+                <div class="col-md-3 mb-3">
+                    <a href="{% url 'student_modules' %}" class="btn btn-primary w-100 btn-lg">
+                        📥 View Modules
+                    </a>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <a href="{% url 'submit_doubt' %}" class="btn btn-success w-100 btn-lg">
+                        ❓ Submit Doubt
+                    </a>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <a href="{% url 'student_doubts' %}" class="btn btn-info w-100 btn-lg">
+                        💬 My Doubts
+                    </a>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <a href="#" class="btn btn-secondary w-100 btn-lg" onclick="printAttendance()">
+                        🖨️ Print Report
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for High Absence Alert (Auto-show if critical) -->
+{% if high_absence_subjects %}
+    <div class="modal fade" id="absenceModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-danger">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">🚨 CRITICAL Attendance Alert</h5>
+                </div>
+                <div class="modal-body">
+                    <p><strong>You have HIGH absences in the following subjects:</strong></p>
+                    <ul class="list-group">
+                        {% for subject in high_absence_subjects %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>{{ subject.get_name_display }}</span>
+                                <span class="badge bg-danger rounded-pill">{{ subject.absence_count }} absences</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                    <p class="mt-3 mb-0">
+                        <small class="text-danger">
+                            <strong>⚠️ IMPORTANT:</strong> You must contact your teacher immediately to discuss these absences. This may affect your academic standing.
+                        </small>
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Dismiss</button>
+                    <a href="{% url 'submit_doubt' %}" class="btn btn-danger">📧 Contact Teacher</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+<script>
+    // Show modal on page load if there are critical absences
+    {% if high_absence_subjects %}
+        document.addEventListener('DOMContentLoaded', function() {
+            const absenceModal = new bootstrap.Modal(document.getElementById('absenceModal'));
+            absenceModal.show();
+        });
+    {% endif %}
+
+    // Print attendance report
+    function printAttendance() {
+        window.print();
+    }
+</script>
+
+<style>
+    .absence-badge {
+        float: right;
+        background-color: #dc3545;
+        color: white;
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-size: 12px;
+    }
+
+    .card {
+        transition: all 0.3s ease;
+        border-radius: 8px;
+    }
+
+    .card:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        transform: translateY(-2px);
+    }
+
+    .btn-lg {
+        font-weight: 600;
+        border-radius: 6px;
+    }
+
+    .modal-content {
+        border-radius: 10px;
+    }
+
+    .alert {
+        border-radius: 8px;
+        margin-bottom: 1rem;
+    }
+
+    @media print {
+        .btn, .btn-group, button, a.btn, .alert {
+            display: none;
+        }
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends 'portal/base.html' %}
+
+{% block title %}Sign Up{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Sign Up</h4>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="username" name="username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="mobile_number" class="form-label">Mobile Number</label>
+                        <input type="tel" class="form-control" id="mobile_number" name="mobile_number" 
+                               placeholder="+919876543210" required>
+                        <small class="form-text text-muted">Include country code (e.g., +91)</small>
+                    </div>
+                    <div class="mb-3">
+                        <label for="role" class="form-label">I am a</label>
+                        <select class="form-select" id="role" name="role" required>
+                            <option value="">Select Role</option>
+                            <option value="student">Student</option>
+                            <option value="teacher">Teacher</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Sign Up</button>
+                    </div>
+                </form>
+                <hr>
+                <p class="text-center mb-0">Already have an account? <a href="{% url 'login' %}">Login</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

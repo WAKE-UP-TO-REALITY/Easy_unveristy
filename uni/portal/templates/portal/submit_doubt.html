@@ -1,0 +1,116 @@
+{% extends 'portal/base.html' %}
+{% load static %}
+
+{% block title %}Submit Doubt{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card shadow-sm">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0">📝 Submit Your Doubt</h4>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="POST" class="needs-validation">
+                        {% csrf_token %}
+                        
+                        <!-- Subject Selection -->
+                        <div class="mb-3">
+                            <label for="subject" class="form-label">
+                                <strong>Select Subject</strong>
+                            </label>
+                            <select name="subject" id="subject" class="form-select" required>
+                                <option value="">-- Choose a Subject --</option>
+                                {% for subject in subjects %}
+                                    <option value="{{ subject.id }}">
+                                        {{ subject.name }}
+                                    </option>
+                                {% empty %}
+                                    <option disabled>No subjects available</option>
+                                {% endfor %}
+                            </select>
+                            <small class="text-muted">Select the subject related to your doubt</small>
+                        </div>
+                        
+                        <!-- Question/Doubt Text -->
+                        <div class="mb-3">
+                            <label for="question" class="form-label">
+                                <strong>Your Question/Doubt</strong>
+                            </label>
+                            <textarea 
+                                name="question" 
+                                id="question" 
+                                class="form-control" 
+                                rows="6" 
+                                placeholder="Describe your doubt in detail... What is confusing you? What do you want to understand?"
+                                required
+                            ></textarea>
+                            <small class="text-muted">Be detailed for better answers</small>
+                        </div>
+                        
+                        <!-- Submit Buttons -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a href="{% url 'student_doubts' %}" class="btn btn-secondary">
+                                ← Back to My Doubts
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                ✓ Submit Doubt
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Info Card -->
+            <div class="card mt-3">
+                <div class="card-body text-muted">
+                    <small>
+                        <strong>💡 Tips:</strong>
+                        <ul class="mb-0 ps-3">
+                            <li>Be specific about what you don't understand</li>
+                            <li>Include relevant context or examples</li>
+                            <li>Ask one main question at a time</li>
+                            <li>Your teacher will respond as soon as possible</li>
+                        </ul>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border-radius: 10px;
+        border: none;
+    }
+    
+    .card-header {
+        border-radius: 10px 10px 0 0;
+    }
+    
+    textarea {
+        border-radius: 5px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    .form-select {
+        border-radius: 5px;
+    }
+    
+    .btn {
+        border-radius: 5px;
+        font-weight: 500;
+    }
+</style>
+{% endblock %}

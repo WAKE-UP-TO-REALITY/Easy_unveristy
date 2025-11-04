@@ -1,0 +1,42 @@
+{% extends 'portal/base.html' %}
+
+{% block title %}Respond to Doubt{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">Respond to Student Doubt</h4>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <strong>Student:</strong> {{ doubt.student.user.username }} ({{ doubt.student.enrollment_number }})<br>
+                    <strong>Subject:</strong> {{ doubt.subject.get_name_display }}<br>
+                    <strong>Submitted:</strong> {{ doubt.created_at|date:"d M Y, h:i A" }}
+                </div>
+                <hr>
+                <div class="mb-3">
+                    <strong>Student's Question:</strong>
+                    <div class="alert alert-light mt-2">
+                        {{ doubt.question }}
+                    </div>
+                </div>
+                <hr>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="response" class="form-label">Your Response</label>
+                        <textarea class="form-control" id="response" name="response" 
+                                  rows="6" placeholder="Provide a detailed response..." required></textarea>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">Submit Response</button>
+                        <a href="{% url 'teacher_doubts' %}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

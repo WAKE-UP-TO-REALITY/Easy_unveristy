@@ -1,0 +1,53 @@
+{% extends 'portal/base.html' %}
+
+{% block title %}Study Modules{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2>Study Modules & Theory</h2>
+        <a href="{% url 'student_dashboard' %}" class="btn btn-secondary mb-3">← Back to Dashboard</a>
+        <hr>
+
+        {% if modules %}
+        <div class="row">
+            {% for module in modules %}
+            <div class="col-md-6 mb-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ module.title }}</h5>
+                        <p class="card-text">
+                            <strong>Subject:</strong> {{ module.subject.get_name_display }}<br>
+                            <strong>Type:</strong> 
+                            {% if module.module_type == 'class_module' %}
+    <span class="badge bg-primary">
+        {{ module.get_module_type_display }}
+    </span>
+{% else %}
+    <span class="badge bg-success">
+        {{ module.get_module_type_display }}
+    </span>
+{% endif %}
+
+                            <strong>Uploaded:</strong> {{ module.uploaded_at|date:"d M Y, h:i A" }}<br>
+                            <strong>By:</strong> {{ module.teacher.user.username }}
+                        </p>
+                        {% if module.description %}
+                        <p class="card-text"><small>{{ module.description }}</small></p>
+                        {% endif %}
+                        <a href="{{ module.file.url }}" class="btn btn-primary btn-sm" download>
+                            <i class="bi bi-download"></i> Download
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            <strong>No modules available yet.</strong> Your teachers will upload study materials soon.
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

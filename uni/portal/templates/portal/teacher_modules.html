@@ -1,0 +1,57 @@
+{% extends 'portal/base.html' %}
+
+{% block title %}My Modules{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2>My Uploaded Modules</h2>
+        <a href="{% url 'teacher_dashboard' %}" class="btn btn-secondary mb-3">← Back to Dashboard</a>
+        <a href="{% url 'upload_module' %}" class="btn btn-success mb-3">+ Upload New Module</a>
+        <hr>
+
+        {% if modules %}
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Title</th>
+                        <th>Type</th>
+                        <th>Upload Date</th>
+                        <th>File</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for module in modules %}
+                    <tr>
+                        <td>{{ module.title }}</td>
+                        <td>
+                            <!-- CORRECT - Using Django if/else -->
+{% if module.module_type == 'class_module' %}
+    <span class="badge bg-primary">
+{% else %}
+    <span class="badge bg-success">
+{% endif %}
+    {{ module.module_type|title }}
+</span>
+
+                        </td>
+                        <td>{{ module.uploaded_at|date:"d M Y, h:i A" }}</td>
+                        <td>
+                            <a href="{{ module.file.url }}" class="btn btn-sm btn-primary" download>
+                                Download
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            You haven't uploaded any modules yet.
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

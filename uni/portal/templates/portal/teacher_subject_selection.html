@@ -1,0 +1,43 @@
+{% extends 'portal/base.html' %}
+
+{% block title %}Teacher Subject Selection{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <div class="card">
+            <div class="card-header bg-warning text-dark">
+                <h4 class="mb-0">Select Your Subject</h4>
+            </div>
+            <div class="card-body">
+                <p>Welcome, {{ user.username }}! Please select the subject you will teach.</p>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="employee_id" class="form-label">Employee ID</label>
+                        <input type="text" class="form-control" id="employee_id" 
+                               name="employee_id" placeholder="EMP2025001" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="subject" class="form-label">Select Subject (One Time Selection)</label>
+                        <select class="form-select" id="subject" name="subject" required>
+                            <option value="">Choose a subject...</option>
+                            {% for subject in subjects %}
+                            <option value="{{ subject.id }}">
+                                {{ subject.get_name_display }} - {{ subject.code }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <small class="form-text text-danger">
+                            <strong>Important:</strong> You can only select this once. Choose carefully!
+                        </small>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-warning">Confirm Subject</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

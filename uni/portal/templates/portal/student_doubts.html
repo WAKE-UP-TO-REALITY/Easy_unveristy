@@ -1,0 +1,55 @@
+{% extends 'portal/base.html' %}
+
+{% block title %}My Doubts{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2>My Submitted Doubts</h2>
+        <a href="{% url 'student_dashboard' %}" class="btn btn-secondary mb-3">← Back to Dashboard</a>
+        <a href="{% url 'submit_doubt' %}" class="btn btn-success mb-3">+ Submit New Doubt</a>
+        <hr>
+
+        {% if doubts %}
+        {% for doubt in doubts %}
+        <div class="card mb-3">
+            <div class="card-header">
+                <strong>{{ doubt.subject.get_name_display }}</strong> - 
+                To: {{ doubt.teacher.user.username }}
+                {% if doubt.is_resolved %}
+    <span class="badge bg-success float-end">✅ Resolved</span>
+{% else %}
+    <span class="badge bg-warning float-end">⏳ Pending</span>
+{% endif %}
+
+            </div>
+            <div class="card-body">
+                <h6 class="card-subtitle mb-2 text-muted">
+                    Submitted on: {{ doubt.created_at|date:"d M Y, h:i A" }}
+                </h6>
+                <p class="card-text"><strong>Your Question:</strong></p>
+                <p class="card-text">{{ doubt.question }}</p>
+                
+                {% if doubt.response %}
+                <hr>
+                <p class="card-text"><strong>Teacher's Response:</strong></p>
+                <div class="alert alert-success">
+                    {{ doubt.response }}
+                </div>
+                <small class="text-muted">Resolved on: {{ doubt.resolved_at|date:"d M Y, h:i A" }}</small>
+                {% else %}
+                <div class="alert alert-warning">
+                    Waiting for teacher's response...
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="alert alert-info">
+            You haven't submitted any doubts yet. <a href="{% url 'submit_doubt' %}">Submit your first doubt</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

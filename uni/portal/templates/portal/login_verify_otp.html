@@ -1,0 +1,29 @@
+{% extends 'portal/base.html' %}
+
+{% block title %}Verify Login OTP{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0">Verify Login OTP</h4>
+            </div>
+            <div class="card-body">
+                <p>An OTP has been sent to your registered mobile number.</p>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="otp" class="form-label">Enter OTP</label>
+                        <input type="text" class="form-control" id="otp" name="otp" 
+                               maxlength="6" placeholder="123456" required autofocus>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-success">Verify & Login</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

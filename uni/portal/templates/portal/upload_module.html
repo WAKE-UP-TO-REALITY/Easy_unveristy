@@ -1,0 +1,50 @@
+{% extends 'portal/base.html' %}
+
+{% block title %}Upload Module{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h4 class="mb-0">Upload Study Material</h4>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Module Title</label>
+                        <input type="text" class="form-control" id="title" name="title" 
+                               placeholder="e.g., Chapter 5 - Data Structures" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="module_type" class="form-label">Module Type</label>
+                        <select class="form-select" id="module_type" name="module_type" required>
+                            <option value="">Select type...</option>
+                            <option value="class_module">Class Module</option>
+                            <option value="theory">Theory Material</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description (Optional)</label>
+                        <textarea class="form-control" id="description" name="description" 
+                                  rows="3" placeholder="Brief description of the content..."></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="file" class="form-label">Upload File</label>
+                        <input type="file" class="form-control" id="file" name="file" 
+                               accept=".pdf,.doc,.docx,.ppt,.pptx" required>
+                        <small class="form-text text-muted">
+                            Accepted formats: PDF, DOC, DOCX, PPT, PPTX (Max 10MB)
+                        </small>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success">Upload Module</button>
+                        <a href="{% url 'teacher_dashboard' %}" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
