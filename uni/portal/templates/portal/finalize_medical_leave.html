@@ -1,0 +1,152 @@
+{% extends 'portal/base.html' %}
+
+{% block title %}Finalize Medical Leave Decision{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <!-- Meeting Info Card -->
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">✅ Meeting Completed</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Student:</strong> {{ leave_request.student.user.get_full_name }}</p>
+                            <p><strong>Enrollment:</strong> {{ leave_request.student.enrollment_number }}</p>
+                            <p><strong>Phone:</strong> +91{{ leave_request.student.user.mobile_number }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>📅 Meeting Date/Time:</strong></p>
+                            <p>{{ leave_request.meeting_scheduled_time|date:"d M Y, h:i A" }}</p>
+                            <p><strong>Meeting Link:</strong></p>
+                            <a href="{{ leave_request.meeting_link }}" target="_blank" class="btn btn-sm btn-info">
+                                🔗 {{ leave_request.meeting_link|truncatewords:5 }}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Student Request Summary -->
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">📋 Request Summary</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>📅 Leave Period:</strong> {{ leave_request.leave_from }} to {{ leave_request.leave_to }}</p>
+                    <p><strong>🩺 Symptoms:</strong></p>
+                    <p class="ms-3 text-muted">{{ leave_request.symptoms }}</p>
+                </div>
+            </div>
+
+            <!-- Make Final Decision -->
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">⚖️ Make Final Decision</h5>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <div class="alert alert-primary">
+                            <strong>📝 Step 2:</strong> Based on your consultation, decide whether to approve or reject the leave request.
+                        </div>
+
+                        <!-- Decision -->
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Final Decision <span class="text-danger">*</span></strong></label>
+                            <select name="status" class="form-select form-select-lg" required onchange="updateForm()">
+                                <option value="">-- Select Decision --</option>
+                                <option value="approved">✅ APPROVE Leave</option>
+                                <option value="rejected">❌ REJECT Leave</option>
+                            </select>
+                        </div>
+
+                        <!-- Doctor's Notes -->
+                        <div class="mb-3">
+                            <label class="form-label"><strong>Medical Notes / Reason <span class="text-danger">*</span></strong></label>
+                            <textarea name="doctor_response" class="form-control" rows="4" 
+                                      placeholder="Explain your decision based on the medical consultation..."
+                                      required>{{ leave_request.doctor_response }}</textarea>
+                            <small class="text-muted">Be specific about medical findings</small>
+                        </div>
+
+                        <!-- Certificate Section (Only if Approved) -->
+                        <div id="certificate-section" style="display: none;">
+                            <hr>
+                            <h6 class="text-success mb-3">✅ Approval Documents</h6>
+                            <div class="mb-3">
+                                <label class="form-label">Medical Certificate (Optional)</label>
+                                <input type="file" name="medical_certificate" class="form-control" 
+                                       accept=".pdf,.jpg,.png,.jpeg">
+                                <small class="text-muted">Upload medical report/prescription (PDF or Image)</small>
+                                {% if leave_request.medical_certificate %}
+                                    <p class="mt-2">
+                                        <strong>Current Certificate:</strong> 
+                                        <a href="{{ leave_request.medical_certificate.url }}" target="_blank" class="btn btn-sm btn-info">
+                                            📄 View
+                                        </a>
+                                    </p>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Submit Buttons -->
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                            <a href="{% url 'doctor_leave_requests' %}" class="btn btn-outline-secondary">
+                                ← Back to Requests
+                            </a>
+                            <button type="submit" class="btn btn-success btn-lg">
+                                ✅ Submit Final Decision
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Status Info -->
+            {% if leave_request.status != 'pending' %}
+                <div class="alert alert-warning mt-4">
+                    <strong>⚠️ Status:</strong> This request has already been processed.
+                    <br>
+                    Current Status: 
+                    <span class="badge bg-{% if leave_request.status == 'approved' %}success{% else %}danger{% endif %}">
+                        {{ leave_request.status|upper }}
+                    </span>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+function updateForm() {
+    const status = document.querySelector('select[name="status"]').value;
+    const certSection = document.getElementById('certificate-section');
+    
+    if (status === 'approved') {
+        certSection.style.display = 'block';
+    } else {
+        certSection.style.display = 'none';
+    }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    updateForm();
+});
+</script>
+
+{% endblock %}

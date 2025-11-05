@@ -25,4 +25,16 @@ urlpatterns = [
     path('teacher/modules/', views.teacher_modules, name='teacher_modules'),
     path('teacher/doubts/', views.teacher_doubts, name='teacher_doubts'),
     path('teacher/respond-doubt/<int:doubt_id>/', views.respond_doubt, name='respond_doubt'),
+
+    #medical leave keliye
+     path('student/medical-leave/request/', views.medical_leave_request, name='medical_leave_request'),
+    path('student/medical-leaves/', views.student_medical_leaves, name='student_medical_leaves'),
+    
+    # Doctor URLs
+    path('doctor/dashboard/', views.doctor_dashboard, name='doctor_dashboard'),
+    path('doctor/leave-requests/', views.doctor_leave_requests, name='doctor_leave_requests'),
+    path('doctor/respond/<int:leave_id>/', views.respond_medical_leave, name='respond_medical_leave'),
+    path('doctor/finalize/<int:leave_id>/', views.finalize_medical_leave, name='finalize_medical_leave'),
+
+    path('doctor/profile-setup/<int:user_id>/', views.doctor_profile_setup, name='doctor_profile_setup'),
 ]

@@ -1,19 +1,19 @@
 {% extends 'portal/base.html' %}
 
-{% block title %}Teacher Subject Selection{% endblock %}
+{% block title %}Doctor Profile Setup{% endblock %}
 
 {% block content %}
 <div class="row">
     <div class="col-md-6 offset-md-3">
         <div class="card">
-            <div class="card-header bg-primary text-white">
-                <h4 class="mb-0">📖 Subject Assignment</h4>
+            <div class="card-header bg-danger text-white">
+                <h4 class="mb-0">👨‍⚕️ Doctor Profile Setup</h4>
             </div>
             <div class="card-body">
                 <form method="post">
                     {% csrf_token %}
 
-                    <p class="text-muted">Hi {{ user.username }}, select your subject:</p>
+                    <p class="text-muted">Hi {{ user.username }}, complete your doctor profile:</p>
 
                     <div class="mb-3">
                         <label for="employee_id" class="form-label">Employee ID <span class="text-danger">*</span></label>
@@ -21,17 +21,13 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="subject" class="form-label">Subject <span class="text-danger">*</span></label>
-                        <select class="form-select" id="subject" name="subject" required>
-                            <option value="">-- Select Subject --</option>
-                            {% for subject in subjects %}
-                                <option value="{{ subject.id }}">{{ subject.name }}</option>
-                            {% endfor %}
-                        </select>
+                        <label for="specialization" class="form-label">Specialization <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="specialization" name="specialization" 
+                               placeholder="e.g., General Physician, Cardiologist, Orthopedic" required>
                     </div>
 
                     <div class="d-grid">
-                        <button type="submit" class="btn btn-primary">
+                        <button type="submit" class="btn btn-danger">
                             ✅ Complete Setup
                         </button>
                     </div>

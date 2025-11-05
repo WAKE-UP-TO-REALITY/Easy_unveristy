@@ -6,31 +6,28 @@
 <div class="row">
     <div class="col-md-6 offset-md-3">
         <div class="card">
-            <div class="card-header bg-info text-white">
-                <h4 class="mb-0">Complete Your Profile</h4>
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">📚 Student Enrollment</h4>
             </div>
             <div class="card-body">
-                <p>Welcome, {{ user.username }}! Please complete your enrollment.</p>
                 <form method="post">
                     {% csrf_token %}
+
+                    <p class="text-muted">Hi {{ user.username }}, complete your enrollment:</p>
+
                     <div class="mb-3">
-                        <label for="enrollment_number" class="form-label">Enrollment Number</label>
-                        <input type="text" class="form-control" id="enrollment_number" 
-                               name="enrollment_number" placeholder="ENR2025001" required>
+                        <label for="enrollment_number" class="form-label">Enrollment Number <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="enrollment_number" name="enrollment_number" required>
                     </div>
+
                     <div class="alert alert-info">
-                        <strong>Note:</strong> You will be automatically enrolled in all 6 subjects:
-                        <ul class="mt-2 mb-0">
-                            <li>Subject 1 (10:00-11:00 AM)</li>
-                            <li>Subject 2 (11:00-12:00 PM)</li>
-                            <li>Subject 3 (1:00-2:00 PM)</li>
-                            <li>Subject 4 (2:00-3:00 PM)</li>
-                            <li>Subject 5 (3:00-4:00 PM)</li>
-                            <li>Subject 6 (4:00-5:00 PM)</li>
-                        </ul>
+                        ℹ️ You will be automatically enrolled in all available subjects.
                     </div>
+
                     <div class="d-grid">
-                        <button type="submit" class="btn btn-info">Complete Enrollment</button>
+                        <button type="submit" class="btn btn-primary">
+                            ✅ Complete Enrollment
+                        </button>
                     </div>
                 </form>
             </div>

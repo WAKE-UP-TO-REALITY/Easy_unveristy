@@ -1,0 +1,142 @@
+{% extends 'portal/base.html' %}
+
+{% block title %}Respond to Medical Leave{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <!-- Student Info -->
+            <div class="card mb-4">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">📋 Student Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Name:</strong> {{ leave_request.student.user.get_full_name }}</p>
+                            <p><strong>Enrollment:</strong> {{ leave_request.student.enrollment_number }}</p>
+                            <p><strong>Phone:</strong> +91{{ leave_request.student.user.mobile_number }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Leave From:</strong> {{ leave_request.leave_from }}</p>
+                            <p><strong>Leave To:</strong> {{ leave_request.leave_to }}</p>
+                            <p><strong>Requested:</strong> {{ leave_request.requested_at|date:"d M Y, h:i A" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Symptoms -->
+            <div class="card mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">🩺 Patient Symptoms</h5>
+                </div>
+                <div class="card-body">
+                    <p class="lead">{{ leave_request.symptoms }}</p>
+                </div>
+            </div>
+
+            <!-- Decision Form -->
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">⚖️ Your Decision</h5>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <!-- OPTION 1: Quick Reject -->
+                        <div class="card mb-4 border-danger">
+                            <div class="card-header bg-danger text-white">
+                                <h6 class="mb-0">❌ OPTION 1: Reject Immediately (No Meeting)</h6>
+                            </div>
+                            <div class="card-body">
+                                <p class="text-muted">Reject without scheduling a meeting</p>
+                                
+                                <div class="mb-3">
+                                    <label class="form-label"><strong>Reason for Rejection <span class="text-danger">*</span></strong></label>
+                                    <textarea name="reason" class="form-control" rows="3" 
+                                              placeholder="Explain why you're rejecting this request..."></textarea>
+                                </div>
+
+                                <button type="submit" name="action" value="reject" class="btn btn-danger btn-lg w-100">
+                                    ❌ REJECT Leave Request
+                                </button>
+                            </div>
+                        </div>
+
+                        <hr>
+                        <h6 class="text-center mb-4">OR</h6>
+                        <hr>
+
+                        <!-- OPTION 2: Schedule Meeting -->
+                        <div class="card border-success">
+                            <div class="card-header bg-success text-white">
+                                <h6 class="mb-0">✅ OPTION 2: Schedule Video Consultation (Then Decide)</h6>
+                            </div>
+                            <div class="card-body">
+                                <p class="text-muted mb-3">Schedule a meeting first, then decide after consultation</p>
+
+                                <!-- Meeting Link -->
+                                <div class="mb-3">
+                                    <label class="form-label"><strong>Google Meet Link <span class="text-danger">*</span></strong></label>
+                                    <input type="url" name="meeting_link" class="form-control" 
+                                           placeholder="https://meet.google.com/xxx-xxxx-xxx"
+                                           value="{% if leave_request.meeting_link %}{{ leave_request.meeting_link }}{% endif %}">
+                                    <small class="text-muted">
+                                        Create: <a href="https://meet.google.com" target="_blank">meet.google.com</a>
+                                    </small>
+                                </div>
+
+                                <!-- Meeting Date -->
+                                <div class="mb-3">
+                                    <label class="form-label"><strong>Meeting Date <span class="text-danger">*</span></strong></label>
+                                    <input type="date" name="meeting_date" class="form-control" 
+                                           value="{% if leave_request.meeting_scheduled_time %}{{ leave_request.meeting_scheduled_time|date:'Y-m-d' }}{% else %}{% now 'Y-m-d' %}{% endif %}">
+                                </div>
+
+                                <!-- Meeting Time -->
+                                <div class="mb-3">
+                                    <label class="form-label"><strong>Meeting Time <span class="text-danger">*</span></strong></label>
+                                    <input type="time" name="meeting_time" class="form-control" 
+                                           value="{% if leave_request.meeting_scheduled_time %}{{ leave_request.meeting_scheduled_time|date:'H:i' }}{% endif %}"
+                                           placeholder="14:30">
+                                </div>
+
+                                <button type="submit" name="action" value="schedule" class="btn btn-success btn-lg w-100">
+                                    📅 Schedule Meeting
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <hr class="mt-4">
+                    <a href="{% url 'doctor_leave_requests' %}" class="btn btn-outline-secondary">
+                        ← Back to Requests
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        transition: all 0.3s ease;
+    }
+    .card:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+</style>
+
+{% endblock %}

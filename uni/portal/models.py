@@ -1,19 +1,23 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from datetime import datetime
+from django.utils import timezone
 
 class User(AbstractUser):
     ROLE_CHOICES = [
         ('student', 'Student'),
         ('teacher', 'Teacher'),
+        ('doctor', 'Doctor'),  # ← Add this
     ]
+    
     mobile_number = models.CharField(max_length=15, unique=True)
-    role = models.CharField(max_length=10, choices=ROLE_CHOICES)
-    otp = models.CharField(max_length=6, null=True, blank=True)
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES)
     is_mobile_verified = models.BooleanField(default=False)
+    otp = models.CharField(max_length=6, blank=True, null=True)
     
     def __str__(self):
-        return f"{self.username} - {self.role}"
+        return f"{self.username} ({self.role})"
+
 
 class Subject(models.Model):
     SUBJECT_CHOICES = [
@@ -114,3 +118,49 @@ class Doubt(models.Model):
     
     def __str__(self):
         return f"Doubt from {self.student.user.username} to {self.teacher.user.username}"
+    
+# ... your existing models ...
+
+class Doctor(models.Model):
+    """Doctor profile for medical leave verification"""
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='doctor_profile')
+    employee_id = models.CharField(max_length=50, unique=True)
+    specialization = models.CharField(max_length=100)
+    
+    def __str__(self):
+        return f"Dr. {self.user.get_full_name()} - {self.specialization}"
+
+
+class MedicalLeaveRequest(models.Model):
+    """Medical leave request from students"""
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    ]
+    
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='medical_leaves')
+    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, related_name='leave_requests')
+    
+    # Request details
+    symptoms = models.TextField(help_text="Describe your symptoms")
+    requested_at = models.DateTimeField(auto_now_add=True)
+    leave_from = models.DateField()
+    leave_to = models.DateField()
+    
+    # Doctor response
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    doctor_response = models.TextField(blank=True, null=True)
+    meeting_link = models.URLField(blank=True, null=True, help_text="Google Meet/Zoom link")
+    meeting_scheduled_time = models.DateTimeField(blank=True, null=True)
+    responded_at = models.DateTimeField(blank=True, null=True)
+    
+    # Medical certificate (if approved)
+    medical_certificate = models.FileField(upload_to='medical_certificates/', blank=True, null=True)
+    
+    class Meta:
+        ordering = ['-requested_at']
+    
+    def __str__(self):
+        return f"Medical Leave - {self.student.user.username} - {self.status}"
+

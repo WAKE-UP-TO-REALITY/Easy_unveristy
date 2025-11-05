@@ -7,41 +7,87 @@
     <div class="col-md-6 offset-md-3">
         <div class="card">
             <div class="card-header bg-primary text-white">
-                <h4 class="mb-0">Sign Up</h4>
+                <h4 class="mb-0">📝 Sign Up</h4>
             </div>
             <div class="card-body">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
                 <form method="post">
                     {% csrf_token %}
+
                     <div class="mb-3">
                         <label for="username" class="form-label">Username</label>
                         <input type="text" class="form-control" id="username" name="username" required>
                     </div>
+
                     <div class="mb-3">
                         <label for="mobile_number" class="form-label">Mobile Number</label>
-                        <input type="tel" class="form-control" id="mobile_number" name="mobile_number" 
-                               placeholder="+919876543210" required>
-                        <small class="form-text text-muted">Include country code (e.g., +91)</small>
+                        <div class="input-group">
+                            <span class="input-group-text">+91</span>
+                            <input type="tel" class="form-control" id="mobile_number" name="mobile_number" 
+                                   placeholder="9876543210" pattern="[0-9]{10}" maxlength="10" required>
+                        </div>
+                        <small class="form-text text-muted">Enter 10-digit number (we'll add +91 automatically)</small>
                     </div>
+
                     <div class="mb-3">
                         <label for="role" class="form-label">I am a</label>
-                        <select class="form-select" id="role" name="role" required>
-                            <option value="">Select Role</option>
-                            <option value="student">Student</option>
-                            <option value="teacher">Teacher</option>
+                        <select class="form-select" id="role" name="role" required onchange="updateRoleInfo()">
+                            <option value="">-- Select Role --</option>
+                            <option value="student">👨‍🎓 Student</option>
+                            <option value="teacher">👨‍🏫 Teacher</option>
+                            <option value="doctor">👨‍⚕️ Doctor</option>
                         </select>
                     </div>
+
+                    <!-- Info message based on role -->
+                    <div id="role-info" class="alert alert-info" style="display: none;"></div>
+
                     <div class="mb-3">
                         <label for="password" class="form-label">Password</label>
-                        <input type="password" class="form-control" id="password" name="password" required>
+                        <input type="password" class="form-control" id="password" name="password" 
+                               minlength="8" required>
+                        <small class="form-text text-muted">Minimum 8 characters</small>
                     </div>
+
                     <div class="d-grid">
-                        <button type="submit" class="btn btn-primary">Sign Up</button>
+                        <button type="submit" class="btn btn-primary">
+                            📤 Sign Up & Get OTP
+                        </button>
                     </div>
                 </form>
+
                 <hr>
                 <p class="text-center mb-0">Already have an account? <a href="{% url 'login' %}">Login</a></p>
             </div>
         </div>
     </div>
 </div>
+
+<script>
+function updateRoleInfo() {
+    const role = document.getElementById('role').value;
+    const infoDiv = document.getElementById('role-info');
+    
+    const messages = {
+        'student': '✅ You will enroll in all subjects after OTP verification.',
+        'teacher': '✅ You will select your subject after OTP verification.',
+        'doctor': '✅ You will add your specialization after OTP verification.'
+    };
+    
+    if (messages[role]) {
+        infoDiv.innerHTML = messages[role];
+        infoDiv.style.display = 'block';
+    } else {
+        infoDiv.style.display = 'none';
+    }
+}
+</script>
 {% endblock %}

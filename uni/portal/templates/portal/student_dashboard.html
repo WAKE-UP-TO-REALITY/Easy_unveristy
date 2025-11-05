@@ -157,6 +157,30 @@
         </div>
     </div>
 {% endif %}
+<!-- Existing content... -->
+
+<!-- Medical Leave Section -->
+<div class="col-md-6 mb-4">
+    <div class="card border-info">
+        <div class="card-header bg-info text-white">
+            <h5>🏥 Medical Leave</h5>
+        </div>
+        <div class="card-body">
+            <p>Need medical attention or leave?</p>
+            <a href="{% url 'medical_leave_request' %}" class="btn btn-info">
+                📝 Request Medical Leave
+            </a>
+            <a href="{% url 'student_medical_leaves' %}" class="btn btn-outline-info">
+                📋 View My Requests
+            </a>
+        </div>
+    </div>
+</div>
+
+
+<!-- Medical Leave Section -->
+
+
 
 <script>
     // Show modal on page load if there are critical absences

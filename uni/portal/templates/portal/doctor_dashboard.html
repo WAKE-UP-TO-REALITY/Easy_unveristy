@@ -1,0 +1,213 @@
+{% extends 'portal/base.html' %}
+
+{% block title %}Doctor Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2>👨‍⚕️ Doctor Dashboard</h2>
+            <p class="text-muted">
+                Welcome, <strong>Dr. {{ user.get_full_name }}</strong> 
+                ({{ doctor.specialization }})
+            </p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{% url 'logout' %}" class="btn btn-outline-danger">
+                🚪 Logout
+            </a>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card border-warning">
+                <div class="card-body text-center">
+                    <h1 class="text-warning">{{ pending_requests }}</h1>
+                    <p class="mb-0">Pending Requests</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-success">
+                <div class="card-body text-center">
+                    <h1 class="text-success">{{ approved_requests }}</h1>
+                    <p class="mb-0">Approved Leaves</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card border-info">
+                <div class="card-body text-center">
+                    <h1 class="text-info">{{ doctor.leave_requests.all|length }}</h1>
+                    <p class="mb-0">Total Requests</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Actions -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">⚡ Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <a href="{% url 'doctor_leave_requests' %}?status=pending" class="btn btn-warning btn-lg me-2 mb-2">
+                        ⏳ View Pending Requests
+                    </a>
+                    <a href="{% url 'doctor_leave_requests' %}?status=all" class="btn btn-primary btn-lg me-2 mb-2">
+                        📋 All Requests
+                    </a>
+                    <a href="{% url 'doctor_leave_requests' %}?status=approved" class="btn btn-success btn-lg mb-2">
+                        ✅ Approved Leaves
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Pending Requests -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">📬 Recent Pending Requests</h5>
+                </div>
+                <div class="card-body">
+                    {% if doctor.leave_requests.all|dictsort:"requested_at"|slice:"-5:" %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Student</th>
+                                        <th>Enrollment</th>
+                                        <th>Leave Period</th>
+                                        <th>Symptoms</th>
+                                        <th>Status</th>
+                                        <th>Requested</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for leave in doctor.leave_requests.all|dictsort:"requested_at"|slice:"-5:" %}
+                                        <tr class="{% if leave.status == 'pending' %}table-warning{% elif leave.status == 'approved' %}table-success{% else %}table-danger{% endif %}">
+                                            <td>
+                                                <strong>{{ leave.student.user.get_full_name }}</strong>
+                                            </td>
+                                            <td>{{ leave.student.enrollment_number }}</td>
+                                            <td>
+                                                {{ leave.leave_from }} to {{ leave.leave_to }}
+                                            </td>
+                                            <td>
+                                                <small>{{ leave.symptoms|truncatewords:10 }}</small>
+                                            </td>
+                                            <td>
+                                                <span class="badge 
+                                                    {% if leave.status == 'pending' %}bg-warning text-dark
+                                                    {% elif leave.status == 'approved' %}bg-success
+                                                    {% else %}bg-danger{% endif %}">
+                                                    {{ leave.status|upper }}
+                                                </span>
+                                            </td>
+                                            <td>{{ leave.requested_at|date:"d M, h:i A" }}</td>
+                                            <td>
+                                                <a href="{% url 'respond_medical_leave' leave.id %}" 
+                                                   class="btn btn-sm {% if leave.status == 'pending' %}btn-primary{% else %}btn-secondary{% endif %}">
+                                                    {% if leave.status == 'pending' %}
+                                                        📝 Respond
+                                                    {% else %}
+                                                        👁️ View
+                                                    {% endif %}
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% empty %}
+                                        <tr>
+                                            <td colspan="7" class="text-center text-muted py-3">
+                                                ✅ No pending requests. Great job!
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="text-center mt-3">
+                            <a href="{% url 'doctor_leave_requests' %}" class="btn btn-outline-primary">
+                                📊 View All Requests
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            ℹ️ No medical leave requests yet.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Doctor Info -->
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">ℹ️ Your Profile</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Name:</strong> {{ user.get_full_name }}</p>
+                    <p><strong>Employee ID:</strong> {{ doctor.employee_id }}</p>
+                    <p><strong>Specialization:</strong> {{ doctor.specialization }}</p>
+                    <p><strong>Phone:</strong> +91{{ user.mobile_number }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-secondary text-white">
+                    <h5 class="mb-0">📊 Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <p>
+                        <strong>Total Requests:</strong> 
+                        <span class="badge bg-primary">{{ doctor.leave_requests.all|length }}</span>
+                    </p>
+                    <p>
+                        <strong>Pending:</strong> 
+                        <span class="badge bg-warning text-dark">{{ pending_requests }}</span>
+                    </p>
+                    <p>
+                        <strong>Approved:</strong> 
+                        <span class="badge bg-success">{{ approved_requests }}</span>
+                    </p>
+                    <p>
+                        <strong>Rejected:</strong> 
+                        <span class="badge bg-danger">
+                            {{ doctor.leave_requests.all|length|add:pending_requests|add:"-"|add:approved_requests }}
+                        </span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<style>
+    .card {
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        transition: transform 0.2s;
+    }
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    }
+    .table-hover tbody tr:hover {
+        background-color: rgba(0,0,0,0.02);
+    }
+</style>
+
+{% endblock %}

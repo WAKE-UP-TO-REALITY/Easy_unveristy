@@ -1,0 +1,65 @@
+{% extends 'portal/base.html' %}
+
+{% block title %}Medical Leave Request{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h4>🏥 Medical Leave Request</h4>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="POST">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Select Doctor <span class="text-danger">*</span></label>
+                            <select name="doctor" class="form-select" required>
+                                <option value="">-- Choose Doctor --</option>
+                                {% for doctor in doctors %}
+                                    <option value="{{ doctor.id }}">
+                                        Dr. {{ doctor.user.get_full_name }} - {{ doctor.specialization }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Symptoms <span class="text-danger">*</span></label>
+                            <textarea name="symptoms" class="form-control" rows="5" 
+                                      placeholder="Describe your symptoms in detail..." required></textarea>
+                            <small class="text-muted">Be as specific as possible</small>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Leave From <span class="text-danger">*</span></label>
+                                <input type="date" name="leave_from" class="form-control" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Leave To <span class="text-danger">*</span></label>
+                                <input type="date" name="leave_to" class="form-control" required>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-info w-100">
+                            📤 Submit Request
+                        </button>
+                        <a href="{% url 'student_dashboard' %}" class="btn btn-outline-secondary w-100 mt-2">
+                            ← Back to Dashboard
+                        </a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

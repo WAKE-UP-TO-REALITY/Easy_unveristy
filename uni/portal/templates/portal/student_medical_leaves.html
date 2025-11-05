@@ -1,0 +1,189 @@
+{% extends 'portal/base.html' %}
+
+{% block title %}My Medical Leave Requests{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2>🏥 My Medical Leave Requests</h2>
+        </div>
+        <div class="col-md-4">
+            <a href="{% url 'student_dashboard' %}" class="btn btn-outline-primary">
+                ← Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Submit New Request -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <a href="{% url 'medical_leave_request' %}" class="btn btn-primary btn-lg">
+                📝 Submit New Medical Leave Request
+            </a>
+        </div>
+    </div>
+
+    <!-- Filter Tabs -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="btn-group" role="group">
+                <a href="?status=all" class="btn btn-outline-primary {% if status == 'all' %}active{% endif %}">
+                    📊 All ({{ medical_leaves|length }})
+                </a>
+                <a href="?status=pending" class="btn btn-outline-warning {% if status == 'pending' %}active{% endif %}">
+                    ⏳ Pending
+                </a>
+                <a href="?status=approved" class="btn btn-outline-success {% if status == 'approved' %}active{% endif %}">
+                    ✅ Approved
+                </a>
+                <a href="?status=rejected" class="btn btn-outline-danger {% if status == 'rejected' %}active{% endif %}">
+                    ❌ Rejected
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Medical Leave Requests -->
+    <div class="row">
+        {% for leave in medical_leaves %}
+            <div class="col-md-12 mb-3">
+                <div class="card">
+                    <div class="card-header {% if leave.status == 'pending' %}bg-warning text-dark{% elif leave.status == 'approved' %}bg-success text-white{% else %}bg-danger text-white{% endif %}">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span>
+                                👨‍⚕️ Dr. {{ leave.doctor.user.get_full_name }}
+                                <small class="text-muted">({{ leave.doctor.specialization }})</small>
+                            </span>
+                            <span class="badge bg-light text-dark">{{ leave.status|upper }}</span>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <!-- Dates -->
+                        <p class="mb-2">
+                            <strong>📅 Leave Period:</strong> 
+                            <span class="badge bg-info">{{ leave.leave_from }}</span>
+                            to
+                            <span class="badge bg-info">{{ leave.leave_to }}</span>
+                        </p>
+
+                        <!-- Symptoms -->
+                        <p class="mb-2">
+                            <strong>🩺 Your Symptoms:</strong>
+                            {{ leave.symptoms }}
+                        </p>
+
+                        <!-- Requested Date -->
+                        <p class="text-muted small mb-3">
+                            Requested: {{ leave.requested_at|date:"d M Y, h:i A" }}
+                        </p>
+
+                        <!-- Pending Status -->
+                        {% if leave.status == 'pending' %}
+                            <div class="alert alert-warning">
+                                ⏳ Waiting for doctor's response...
+                            </div>
+                        {% endif %}
+
+                        <!-- Doctor's Response -->
+                        {% if leave.doctor_response %}
+                            <div class="alert alert-info">
+                                <strong>👨‍⚕️ Doctor's Response:</strong>
+                                <p class="mb-0 mt-2">{{ leave.doctor_response }}</p>
+                            </div>
+                        {% endif %}
+
+                        <!-- Meeting Section (if scheduled) -->
+                        {% if leave.meeting_link %}
+                            <div class="alert alert-success mt-3">
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <h6 class="mb-3">📹 Video Consultation Scheduled</h6>
+                                        <p class="mb-2">
+                                            <strong>📅 Date & Time:</strong>
+                                            <br>
+                                            {{ leave.meeting_scheduled_time|date:"📆 d M Y at h:i A" }}
+                                        </p>
+                                        <p class="mb-0">
+                                            <strong>🔗 Meeting Link:</strong>
+                                            <br>
+                                            <code class="bg-light p-2">{{ leave.meeting_link }}</code>
+                                        </p>
+                                    </div>
+                                    <div class="col-md-4 text-end">
+                                        <a href="{{ leave.meeting_link }}" target="_blank" class="btn btn-success btn-lg">
+                                            ▶️ Join Meeting
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endif %}
+
+                        <!-- Approval Info -->
+                        {% if leave.status == 'approved' %}
+                            <div class="alert alert-success mt-3">
+                                <h6 class="text-success mb-3">✅ Leave Approved</h6>
+                                <p class="mb-0">Your medical leave has been approved by the doctor.</p>
+                                {% if leave.medical_certificate %}
+                                    <div class="mt-3">
+                                        <strong>📄 Medical Certificate:</strong>
+                                        <br>
+                                        <a href="{{ leave.medical_certificate.url }}" target="_blank" class="btn btn-sm btn-outline-success mt-2">
+                                            📥 Download Certificate
+                                        </a>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+
+                        <!-- Rejection Info -->
+                        {% if leave.status == 'rejected' %}
+                            <div class="alert alert-danger mt-3">
+                                <h6 class="text-danger mb-3">❌ Leave Rejected</h6>
+                                <p class="mb-0">{{ leave.doctor_response }}</p>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Footer with Timeline -->
+                    <div class="card-footer bg-light">
+                        <small class="text-muted">
+                            {% if leave.responded_at %}
+                                ✅ Doctor responded on {{ leave.responded_at|date:"d M Y, h:i A" }}
+                            {% else %}
+                                ⏳ Awaiting doctor's response
+                            {% endif %}
+                        </small>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-md-12">
+                <div class="alert alert-info text-center py-5">
+                    <h5>📋 No Medical Leave Requests Yet</h5>
+                    <p class="mb-3">Submit a medical leave request to get started.</p>
+                    <a href="{% url 'medical_leave_request' %}" class="btn btn-primary">
+                        📝 Submit Request Now
+                    </a>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    .card {
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .card:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    code {
+        word-break: break-all;
+    }
+</style>
+
+{% endblock %}

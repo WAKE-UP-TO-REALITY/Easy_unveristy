@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from .models import User, Student, Teacher, Subject, Attendance, Module, Doubt
+from .models import User, Student, Teacher, Doctor, Subject, Attendance, Module, Doubt, MedicalLeaveRequest
 
 # Custom User Admin
 @admin.register(User)
@@ -96,3 +97,14 @@ class DoubtAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         }),
     )
+
+@admin.register(Doctor)
+class DoctorAdmin(admin.ModelAdmin):
+    list_display = ['user', 'employee_id', 'specialization']
+    search_fields = ['user__username', 'employee_id']
+
+@admin.register(MedicalLeaveRequest)
+class MedicalLeaveRequestAdmin(admin.ModelAdmin):
+    list_display = ['student', 'doctor', 'status', 'requested_at', 'meeting_scheduled_time']
+    list_filter = ['status', 'requested_at']
+    search_fields = ['student__user__username', 'symptoms']

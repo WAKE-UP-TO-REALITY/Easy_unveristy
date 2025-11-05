@@ -1,0 +1,150 @@
+{% extends 'portal/base.html' %}
+
+{% block title %}Medical Leave Requests{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h2>📋 Medical Leave Requests</h2>
+        </div>
+        <div class="col-md-4">
+            <a href="{% url 'doctor_dashboard' %}" class="btn btn-outline-primary">
+                ← Back to Dashboard
+            </a>
+        </div>
+    </div>
+
+    <!-- Filter Buttons -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="btn-group" role="group">
+                <a href="?status=all" class="btn btn-outline-primary {% if status == 'all' %}active{% endif %}">
+                    📊 All ({{ leave_requests|length }})
+                </a>
+                <a href="?status=pending" class="btn btn-outline-warning {% if status == 'pending' %}active{% endif %}">
+                    ⏳ Pending
+                </a>
+                <a href="?status=approved" class="btn btn-outline-success {% if status == 'approved' %}active{% endif %}">
+                    ✅ Approved
+                </a>
+                <a href="?status=rejected" class="btn btn-outline-danger {% if status == 'rejected' %}active{% endif %}">
+                    ❌ Rejected
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Requests List -->
+    <div class="row">
+        {% for leave in leave_requests %}
+            <div class="col-md-12 mb-3">
+                <div class="card border-left {% if leave.status == 'pending' %}border-warning{% elif leave.status == 'approved' %}border-success{% else %}border-danger{% endif %}">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <!-- Student Info -->
+                                <h5>
+                                    👤 {{ leave.student.user.get_full_name }}
+                                    <span class="badge 
+                                        {% if leave.status == 'pending' %}bg-warning text-dark
+                                        {% elif leave.status == 'approved' %}bg-success
+                                        {% else %}bg-danger{% endif %}">
+                                        {{ leave.status|upper }}
+                                    </span>
+                                </h5>
+                                <p class="text-muted mb-2">
+                                    <strong>Enrollment:</strong> {{ leave.student.enrollment_number }}
+                                </p>
+
+                                <!-- Leave Details -->
+                                <p class="mb-2">
+                                    <strong>📅 Leave Period:</strong> 
+                                    {{ leave.leave_from }} to {{ leave.leave_to }}
+                                </p>
+                                <p class="mb-2">
+                                    <strong>📝 Symptoms:</strong> 
+                                    {{ leave.symptoms }}
+                                </p>
+
+                                <!-- Response (if available) -->
+                                {% if leave.doctor_response %}
+                                    <div class="alert alert-info mt-2 mb-2">
+                                        <strong>Your Response:</strong>
+                                        {{ leave.doctor_response }}
+                                    </div>
+                                {% endif %}
+
+                                <!-- Meeting Link (if available) -->
+                                {% if leave.meeting_link %}
+                                    <div class="alert alert-success mt-2 mb-2">
+                                        <strong>📹 Meeting Scheduled:</strong>
+                                        {{ leave.meeting_scheduled_time|date:"d M Y, h:i A" }}
+                                        <a href="{{ leave.meeting_link }}" target="_blank" class="btn btn-sm btn-primary ms-2">
+                                            🔗 Join Meeting
+                                        </a>
+                                    </div>
+                                {% endif %}
+
+                                <small class="text-muted">
+                                    Requested: {{ leave.requested_at|date:"d M Y, h:i A" }}
+                                </small>
+                            </div>
+
+                            <div class="col-md-4 text-end">
+                                {% if leave.status == 'pending' %}
+                                    {% if leave.meeting_link %}
+                                        <!-- Already scheduled - finalize decision -->
+                                        <a href="{% url 'finalize_medical_leave' leave.id %}" class="btn btn-warning mb-2 w-100">
+                                            ⚖️ Finalize Decision
+                                        </a>
+                                        <small class="text-success">✅ Meeting Scheduled</small>
+                                    {% else %}
+                                        <!-- Not decided yet - respond -->
+                                        <a href="{% url 'respond_medical_leave' leave.id %}" class="btn btn-primary mb-2 w-100">
+                                            ⚖️ Respond
+                                        </a>
+                                        <small class="text-danger">⏰ Action Required</small>
+                                    {% endif %}
+                                {% else %}
+                                    <!-- Already decided -->
+                                    <span class="badge bg-{% if leave.status == 'approved' %}success{% else %}danger{% endif %} mb-2 d-block">
+                                        {{ leave.status|upper }}
+                                    </span>
+                                    {% if leave.medical_certificate %}
+                                        <a href="{{ leave.medical_certificate.url }}" target="_blank" class="btn btn-sm btn-outline-success w-100">
+                                            📄 Certificate
+                                        </a>
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="col-md-12">
+                <div class="alert alert-info text-center py-4">
+                    {% if status != 'all' %}
+                        ℹ️ No <strong>{{ status }}</strong> medical leave requests.
+                    {% else %}
+                        ℹ️ No medical leave requests yet.
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    .border-left {
+        border-left: 4px solid !important;
+    }
+    .btn-group .btn.active {
+        background-color: #0d6efd;
+        color: white;
+    }
+</style>
+
+{% endblock %}

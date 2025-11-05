@@ -7,22 +7,43 @@
     <div class="col-md-6 offset-md-3">
         <div class="card">
             <div class="card-header bg-success text-white">
-                <h4 class="mb-0">Verify OTP</h4>
+                <h4 class="mb-0">✅ Verify OTP</h4>
             </div>
             <div class="card-body">
-                <p>An OTP has been sent to your mobile number: <strong>{{ user.mobile_number }}</strong></p>
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <p class="text-muted mb-3">
+                    OTP has been sent to <strong>{{ user.mobile_number }}</strong>
+                </p>
+
                 <form method="post">
                     {% csrf_token %}
+
                     <div class="mb-3">
                         <label for="otp" class="form-label">Enter OTP</label>
-                        <input type="text" class="form-control" id="otp" name="otp" 
-                               maxlength="6" placeholder="123456" required autofocus>
-                        <small class="form-text text-muted">Enter the 6-digit OTP</small>
+                        <input type="text" class="form-control form-control-lg text-center" 
+                               id="otp" name="otp" maxlength="6" inputmode="numeric" 
+                               placeholder="000000" required style="font-size: 2em; letter-spacing: 10px;">
                     </div>
+
                     <div class="d-grid">
-                        <button type="submit" class="btn btn-success">Verify</button>
+                        <button type="submit" class="btn btn-success">
+                            ✅ Verify OTP
+                        </button>
                     </div>
                 </form>
+
+                <hr>
+                <p class="text-center text-muted small">
+                    Didn't receive OTP? <a href="{% url 'signup' %}">Sign up again</a>
+                </p>
             </div>
         </div>
     </div>
