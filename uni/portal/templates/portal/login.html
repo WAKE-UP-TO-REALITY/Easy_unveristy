@@ -1,34 +1,239 @@
 {% extends 'portal/base.html' %}
+{% load static %}
 
-{% block title %}Login{% endblock %}
+{% block title %}Login - NIT Portal{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-6 offset-md-3">
-        <div class="card">
-            <div class="card-header bg-dark text-white">
-                <h4 class="mb-0">Login</h4>
-            </div>
-            <div class="card-body">
-                <form method="post">
-                    {% csrf_token %}
-                    <div class="mb-3">
-                        <label for="mobile_number" class="form-label">Mobile Number</label>
-                        <input type="tel" class="form-control" id="mobile_number" name="mobile_number" 
-                               placeholder="+919876543210" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="password" class="form-label">Password</label>
-                        <input type="password" class="form-control" id="password" name="password" required>
-                    </div>
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-dark">Login</button>
-                    </div>
-                </form>
-                <hr>
-                <p class="text-center mb-0">Don't have an account? <a href="{% url 'signup' %}">Sign Up</a></p>
-            </div>
+<style>
+    body {
+        background-image: url("{% static 'portal/images/83363433.avif' %}");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        min-height: 100vh;
+    }
+
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        filter: blur(8px);
+        z-index: -1;
+        pointer-events: none;
+    }
+
+    .login-wrapper {
+        min-height: calc(100vh - 80px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+    }
+
+    .login-container {
+        width: 100%;
+        max-width: 450px;
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+        animation: slideUp 0.6s ease;
+    }
+
+    .login-header {
+        background: linear-gradient(135deg, #d4a574 0%, #c9985f 100%);
+        padding: 40px 20px;
+        text-align: center;
+    }
+
+    .login-header h2 {
+        color: white;
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0 0 10px 0;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .login-header p {
+        color: rgba(255, 255, 255, 0.95);
+        margin: 0;
+        font-size: 0.95rem;
+    }
+
+    .card-body {
+        padding: 40px !important;
+    }
+
+    .form-group {
+        margin-bottom: 25px;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #333 !important;
+        margin-bottom: 8px;
+        font-size: 0.95rem;
+    }
+
+    .form-control {
+        padding: 12px 15px !important;
+        border: 2px solid #e0d5c7 !important;
+        border-radius: 10px !important;
+        font-size: 1rem !important;
+        transition: all 0.3s ease !important;
+        font-family: 'Poppins', sans-serif !important;
+    }
+
+    .form-control:focus {
+        outline: none !important;
+        border-color: #d4a574 !important;
+        box-shadow: 0 0 0 3px rgba(212, 165, 116, 0.1) !important;
+        background-color: #fefbf7 !important;
+    }
+
+    .form-control::placeholder {
+        color: #999;
+    }
+
+    .btn-dark {
+        width: 100% !important;
+        padding: 14px !important;
+        background: linear-gradient(135deg, #d4a574 0%, #c9985f 100%) !important;
+        border: none !important;
+        border-radius: 10px !important;
+        font-size: 1.1rem !important;
+        font-weight: 600 !important;
+        color: white !important;
+        cursor: pointer;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 10px 25px rgba(212, 165, 116, 0.3) !important;
+    }
+
+    .btn-dark:hover {
+        transform: translateY(-3px) !important;
+        box-shadow: 0 15px 35px rgba(212, 165, 116, 0.4) !important;
+        background: linear-gradient(135deg, #c9985f 0%, #d4a574 100%) !important;
+    }
+
+    .btn-dark:active {
+        transform: translateY(-1px) !important;
+    }
+
+    .divider {
+        margin: 30px 0;
+        display: flex;
+        align-items: center;
+        color: #ccc;
+    }
+
+    .divider::before {
+        content: '';
+        flex: 1;
+        height: 2px;
+        background: #e0e0e0;
+    }
+
+    .divider::after {
+        content: '';
+        flex: 1;
+        height: 2px;
+        background: #e0e0e0;
+    }
+
+    .text-center {
+        text-align: center !important;
+        color: #666 !important;
+        font-size: 0.95rem;
+    }
+
+    .text-center a {
+        color: #d4a574;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .text-center a:hover {
+        color: #c9985f;
+        text-decoration: underline;
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .login-wrapper {
+            padding: 20px;
+            min-height: auto;
+        }
+
+        .login-container {
+            max-width: 100%;
+            border-radius: 15px;
+        }
+
+        .login-header h2 {
+            font-size: 1.6rem;
+        }
+
+        .login-header {
+            padding: 30px 20px;
+        }
+
+        .card-body {
+            padding: 30px 20px !important;
+        }
+
+        .form-control {
+            font-size: 16px !important;
+            padding: 11px 12px !important;
+        }
+    }
+</style>
+
+<div class="login-wrapper">
+    <div class="login-container">
+        <div class="login-header">
+            <p>Sign in to your account</p>
+        </div>
+        
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group mb-3">
+                    <label for="mobile_number" class="form-label">Mobile Number</label>
+                    <input type="tel" class="form-control" id="mobile_number" name="mobile_number" 
+                           placeholder="+919876543210" required>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" name="password" 
+                           placeholder="Enter your password" required>
+                </div>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-dark">Sign In</button>
+                </div>
+            </form>
+
+            <div class="divider"></div>
+
+            <p class="text-center mb-0">Don't have an account? <a href="{% url 'signup' %}">Sign Up</a></p>
         </div>
     </div>
 </div>
+
 {% endblock %}

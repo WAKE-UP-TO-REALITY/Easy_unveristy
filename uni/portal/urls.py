@@ -2,8 +2,10 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+
+    path('', views.landing_page, name='landing'),
     # Authentication
-    path('', views.login_view, name='login'),
+    path('login/', views.login_view, name='login'),
     path('signup/', views.signup, name='signup'),
     path('verify-otp/', views.verify_otp_view, name='verify_otp'),
     path('login-verify-otp/', views.login_verify_otp, name='login_verify_otp'),

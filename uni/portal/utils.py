@@ -21,8 +21,6 @@ def send_otp_via_sms(mobile_number, otp):
         print("="*70 + "\n")
         return True
     else:
-        # Production mode - Use actual SMS service (implement later)
-        # For India, use: MSG91, Fast2SMS, Exotel, etc.
         pass
 
         

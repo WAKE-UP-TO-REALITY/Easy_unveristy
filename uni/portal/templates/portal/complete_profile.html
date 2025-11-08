@@ -1,0 +1,129 @@
+{% extends 'portal/base.html' %}
+
+{% block title %}Complete Your Profile{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">👤 Complete Your Profile</h4>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="POST">
+                        {% csrf_token %}
+
+                        <p class="text-muted mb-4">
+                            Hi <strong>{{ user.username }}</strong>, please complete your {{ role|upper }} profile to continue.
+                        </p>
+
+                        <!-- STUDENT Profile -->
+                        {% if role == 'student' %}
+                            <div class="mb-3">
+                                <label for="enrollment_number" class="form-label">
+                                    <strong>Enrollment Number <span class="text-danger">*</span></strong>
+                                </label>
+                                <input type="text" class="form-control form-control-lg" 
+                                       id="enrollment_number" name="enrollment_number" required
+                                       placeholder="e.g., 20210001">
+                                <small class="text-muted">Your unique enrollment number from NIT</small>
+                            </div>
+
+                            <div class="alert alert-info">
+                                ℹ️ You will be automatically enrolled in all available subjects.
+                            </div>
+
+                        <!-- TEACHER Profile -->
+                        {% elif role == 'teacher' %}
+                            <div class="mb-3">
+                                <label for="employee_id" class="form-label">
+                                    <strong>Employee ID <span class="text-danger">*</span></strong>
+                                </label>
+                                <input type="text" class="form-control form-control-lg" 
+                                       id="employee_id" name="employee_id" required
+                                       placeholder="e.g., EMP001">
+                                <small class="text-muted">Your official employee ID</small>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="subject" class="form-label">
+                                    <strong>Subject <span class="text-danger">*</span></strong>
+                                </label>
+                                <select class="form-select form-select-lg" id="subject" name="subject" required>
+                                    <option value="">-- Select Your Subject --</option>
+                                    {% for subject in subjects %}
+                                        <option value="{{ subject.id }}">{{ subject.name }}</option>
+                                    {% endfor %}
+                                </select>
+                                <small class="text-muted">Select the subject you will teach</small>
+                            </div>
+
+                        <!-- DOCTOR Profile -->
+                        {% elif role == 'doctor' %}
+                            <div class="mb-3">
+                                <label for="employee_id" class="form-label">
+                                    <strong>Employee ID <span class="text-danger">*</span></strong>
+                                </label>
+                                <input type="text" class="form-control form-control-lg" 
+                                       id="employee_id" name="employee_id" required
+                                       placeholder="e.g., DOC001">
+                                <small class="text-muted">Your official employee/doctor ID</small>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="specialization" class="form-label">
+                                    <strong>Specialization <span class="text-danger">*</span></strong>
+                                </label>
+                                <input type="text" class="form-control form-control-lg" 
+                                       id="specialization" name="specialization" required
+                                       placeholder="e.g., General Physician, Cardiologist, etc.">
+                                <small class="text-muted">Your medical specialization</small>
+                            </div>
+
+                        {% endif %}
+
+                        <!-- Submit Button -->
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                ✅ Complete Setup
+                            </button>
+                        </div>
+                    </form>
+
+                    <hr>
+                    <p class="text-center text-muted small">
+                        <a href="{% url 'logout' %}">Cancel and Logout</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .form-control, .form-select {
+        border-radius: 8px;
+        border: 1px solid #ddd;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #0d6efd;
+        box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+    }
+</style>
+
+{% endblock %}

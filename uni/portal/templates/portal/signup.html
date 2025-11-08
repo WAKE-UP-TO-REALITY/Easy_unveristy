@@ -1,72 +1,174 @@
 {% extends 'portal/base.html' %}
+{% load static %}
 
 {% block title %}Sign Up{% endblock %}
 
 {% block content %}
-<div class="row">
-    <div class="col-md-6 offset-md-3">
-        <div class="card">
-            <div class="card-header bg-primary text-white">
-                <h4 class="mb-0">📝 Sign Up</h4>
-            </div>
-            <div class="card-body">
-                {% if messages %}
-                    {% for message in messages %}
-                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
-                            {{ message }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    {% endfor %}
-                {% endif %}
+<style>
+    body {
+        background-image: url("{% static 'portal/images/83363433.avif' %}");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        min-height: 100vh;
+    }
 
-                <form method="post">
-                    {% csrf_token %}
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: -1;
+    }
 
-                    <div class="mb-3">
-                        <label for="username" class="form-label">Username</label>
-                        <input type="text" class="form-control" id="username" name="username" required>
+    .signup-container {
+        min-height: calc(100vh - 80px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+    }
+
+    .card {
+        max-width: 450px;
+        width: 100%;
+        border: none;
+        border-radius: 10px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .card-header {
+        background: linear-gradient(135deg, #d4a574 0%, #c9985f 100%) !important;
+        color: white !important;
+        border-radius: 10px 10px 0 0 !important;
+        padding: 25px !important;
+    }
+
+    .card-header h4 {
+        font-weight: 700;
+        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #d4a574 0%, #c9985f 100%) !important;
+        border: none !important;
+        font-weight: 600;
+        padding: 10px 20px;
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #c9985f 0%, #d4a574 100%) !important;
+        box-shadow: 0 5px 15px rgba(212, 165, 116, 0.3);
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #d4a574 !important;
+        box-shadow: 0 0 0 0.2rem rgba(212, 165, 116, 0.25) !important;
+    }
+
+    .input-group-text {
+        background-color: #f5f0e8 !important;
+        border-color: #ddd !important;
+    }
+
+    .alert-info {
+        background-color: rgba(13, 110, 253, 0.1) !important;
+        border-color: #0d6efd !important;
+        color: #0d6efd !important;
+    }
+
+    a {
+        color: #d4a574 !important;
+        text-decoration: none;
+    }
+
+    a:hover {
+        color: #c9985f !important;
+    }
+
+    @media (max-width: 768px) {
+        .signup-container {
+            padding: 20px 15px;
+        }
+
+        .card {
+            max-width: 100%;
+        }
+    }
+
+    @media print {
+        body::before,
+        .btn {
+            display: none !important;
+        }
+    }
+</style>
+
+<div class="signup-container">
+    <div class="card">
+        <div class="card-header">
+            <h4 class="mb-0">📝 Sign Up</h4>
+        </div>
+        <div class="card-body">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                     </div>
+                {% endfor %}
+            {% endif %}
 
-                    <div class="mb-3">
-                        <label for="mobile_number" class="form-label">Mobile Number</label>
-                        <div class="input-group">
-                            <span class="input-group-text">+91</span>
-                            <input type="tel" class="form-control" id="mobile_number" name="mobile_number" 
-                                   placeholder="9876543210" pattern="[0-9]{10}" maxlength="10" required>
-                        </div>
-                        <small class="form-text text-muted">Enter 10-digit number (we'll add +91 automatically)</small>
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" class="form-control" id="username" name="username" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="mobile_number" class="form-label">Mobile Number</label>
+                    <div class="input-group">
+                        <span class="input-group-text">+91</span>
+                        <input type="tel" class="form-control" id="mobile_number" name="mobile_number" 
+                               placeholder="9876543210" pattern="[0-9]{10}" maxlength="10" required>
                     </div>
+                    <small class="form-text text-muted">Enter 10-digit number (we'll add +91 automatically)</small>
+                </div>
 
-                    <div class="mb-3">
-                        <label for="role" class="form-label">I am a</label>
-                        <select class="form-select" id="role" name="role" required onchange="updateRoleInfo()">
-                            <option value="">-- Select Role --</option>
-                            <option value="student">👨‍🎓 Student</option>
-                            <option value="teacher">👨‍🏫 Teacher</option>
-                            <option value="doctor">👨‍⚕️ Doctor</option>
-                        </select>
-                    </div>
+                <div class="mb-3">
+                    <label for="role" class="form-label">I am a</label>
+                    <select class="form-select" id="role" name="role" required onchange="updateRoleInfo()">
+                        <option value="">-- Select Role --</option>
+                        <option value="student">👨‍🎓 Student</option>
+                        <option value="teacher">👨‍🏫 Teacher</option>
+                        <option value="doctor">👨‍⚕️ Doctor</option>
+                    </select>
+                </div>
 
-                    <!-- Info message based on role -->
-                    <div id="role-info" class="alert alert-info" style="display: none;"></div>
+                <div id="role-info" class="alert alert-info" style="display: none;"></div>
 
-                    <div class="mb-3">
-                        <label for="password" class="form-label">Password</label>
-                        <input type="password" class="form-control" id="password" name="password" 
-                               minlength="8" required>
-                        <small class="form-text text-muted">Minimum 8 characters</small>
-                    </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" name="password" required>
+                    <small class="form-text text-muted">Minimum 8 characters</small>
+                </div>
 
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-primary">
-                            📤 Sign Up & Get OTP
-                        </button>
-                    </div>
-                </form>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary">
+                        📤 Sign Up 
+                    </button>
+                </div>
+            </form>
 
-                <hr>
-                <p class="text-center mb-0">Already have an account? <a href="{% url 'login' %}">Login</a></p>
-            </div>
+            <hr>
+            <p class="text-center mb-0">Already have an account? <a href="{% url 'login' %}">Login</a></p>
         </div>
     </div>
 </div>
@@ -76,11 +178,7 @@ function updateRoleInfo() {
     const role = document.getElementById('role').value;
     const infoDiv = document.getElementById('role-info');
     
-    const messages = {
-        'student': '✅ You will enroll in all subjects after OTP verification.',
-        'teacher': '✅ You will select your subject after OTP verification.',
-        'doctor': '✅ You will add your specialization after OTP verification.'
-    };
+   
     
     if (messages[role]) {
         infoDiv.innerHTML = messages[role];
@@ -90,4 +188,5 @@ function updateRoleInfo() {
     }
 }
 </script>
+
 {% endblock %}

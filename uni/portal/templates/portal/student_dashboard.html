@@ -1,8 +1,73 @@
 {% extends 'portal/base.html' %}
+{% load static %}
 
 {% block title %}Student Dashboard{% endblock %}
 
 {% block content %}
+<style>
+    .card {
+        transition: all 0.3s ease;
+        border-radius: 8px;
+    }
+
+    .card:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        transform: translateY(-2px);
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #d4a574 0%, #c9985f 100%) !important;
+        border: none !important;
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #c9985f 0%, #d4a574 100%) !important;
+    }
+
+    .table {
+        font-size: 0.95rem;
+    }
+
+    .table thead {
+        background: linear-gradient(135deg, #d4a574 0%, #c9985f 100%);
+        color: white;
+    }
+
+    .table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+
+    .bg-light {
+        background: linear-gradient(135deg, #d4a574 0%, #c9985f 100%) !important;
+        color: white !important;
+    }
+
+    .btn-lg {
+        font-weight: 600;
+        border-radius: 6px;
+    }
+
+    .modal-content {
+        border-radius: 10px;
+    }
+
+    .modal-header {
+        background: linear-gradient(135deg, #d4a574 0%, #c9985f 100%);
+        color: white;
+    }
+
+    .alert {
+        border-radius: 8px;
+        margin-bottom: 1rem;
+    }
+
+    @media print {
+        .btn, .btn-group, button, a.btn, .alert {
+            display: none;
+        }
+    }
+</style>
+
 <div class="container-fluid mt-4">
     <div class="row">
         <div class="col-md-12">
@@ -10,11 +75,11 @@
             <div class="card mb-4 bg-light">
                 <div class="card-body">
                     <h2 class="mb-1">👋 Welcome, {{ student.user.username }}</h2>
-                    <p class="text-muted mb-0">Enrollment: <strong>{{ student.enrollment_number }}</strong></p>
+                    <p class="mb-0">Enrollment: <strong>{{ student.enrollment_number }}</strong></p>
                 </div>
             </div>
 
-            <!-- Subject-wise Absence Alerts (Individual Popups at Top) -->
+            <!-- Subject-wise Absence Alerts -->
             {% for subject, absence_count in subject_absences.items %}
                 {% if absence_count > 0 %}
                 <div class="alert {% if absence_count >= 3 %}alert-danger{% else %}alert-warning{% endif %} alert-dismissible fade show" role="alert">
@@ -30,7 +95,7 @@
                     You have <strong>{{ absence_count }} absence(s)</strong> in this subject.
                     {% if absence_count >= 3 %}
                         <br>
-                        <small>🚨 <strong>Action Required:</strong> This is critical. Please contact your teacher.</small>
+                        <small>🚨 <strong>Action Required:</strong> Please contact your teacher.</small>
                     {% endif %}
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
@@ -54,48 +119,68 @@
                 </div>
             {% endif %}
 
-            <!-- Subjects & Attendance -->
+            <!-- Subjects Table -->
             <h3 class="mb-4">📚 Your Subjects & Attendance</h3>
-            <div class="row">
-                {% for subject, absence_count in subject_absences.items %}
-                    <div class="col-md-6 mb-3">
-                        <div class="card {% if absence_count >= 3 %}border-danger{% elif absence_count > 0 %}border-warning{% endif %}">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between align-items-start">
-                                    <div>
-                                        <h5 class="card-title mb-2">{{ subject.get_name_display }}</h5>
-                                        <p class="card-text text-muted mb-2">
-                                            ⏰ Time: {{ subject.TIME_SLOTS|dictsort:subject.name }}
-                                        </p>
-                                        <p class="card-text text-muted">
-                                            📋 Code: <strong>{{ subject.code }}</strong>
-                                        </p>
-                                    </div>
-                                    <div>
-                                        {% if absence_count > 0 %}
-                                            {% if absence_count >= 3 %}
-                                                <span class="badge bg-danger fs-6" title="Critical absences">🔴 {{ absence_count }} Absent</span>
+            <div class="card">
+                {% if subject_absences %}
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Subject Name</th>
+                                    <th>Code</th>
+                                    <th>Absences</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for subject, absence_count in subject_absences.items %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ subject.get_name_display }}</strong>
+                                        </td>
+                                        <td>{{ subject.code }}</td>
+                                        <td>
+                                            {% if absence_count > 0 %}
+                                                <span class="badge {% if absence_count >= 3 %}bg-danger{% else %}bg-warning text-dark{% endif %}">
+                                                    {{ absence_count }}
+                                                </span>
                                             {% else %}
-                                                <span class="badge bg-warning text-dark fs-6" title="Moderate absences">🟡 {{ absence_count }} Absent</span>
+                                                <span class="badge bg-success">0</span>
                                             {% endif %}
-                                        {% else %}
-                                            <span class="badge bg-success fs-6">✅ Perfect</span>
-                                        {% endif %}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
                     </div>
-                {% empty %}
-                    <div class="col-md-12">
-                        <div class="alert alert-info">
-                            No subjects assigned yet.
-                        </div>
+                {% else %}
+                    <div class="card-body">
+                        <div class="alert alert-info mb-0">No subjects assigned yet.</div>
                     </div>
-                {% endfor %}
+                {% endif %}
             </div>
 
             <hr class="my-5">
+
+            <!-- Medical Leave Section -->
+            <div class="row mb-4">
+                <div class="col-md-6 mb-3">
+                    <div class="card border-info">
+                        <div class="card-header bg-info text-white">
+                            <h5 class="mb-0">🏥 Medical Leave</h5>
+                        </div>
+                        <div class="card-body">
+                            <p>Need medical attention or leave?</p>
+                            <a href="{% url 'medical_leave_request' %}" class="btn btn-info">
+                                📝 Request Medical Leave
+                            </a>
+                            <a href="{% url 'student_medical_leaves' %}" class="btn btn-outline-info">
+                                📋 View My Requests
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <!-- Quick Links -->
             <h3 class="mb-4">🔗 Quick Links</h3>
@@ -116,21 +201,21 @@
                     </a>
                 </div>
                 <div class="col-md-3 mb-3">
-                    <a href="#" class="btn btn-secondary w-100 btn-lg" onclick="printAttendance()">
+                    <button class="btn btn-secondary w-100 btn-lg" onclick="printAttendance()">
                         🖨️ Print Report
-                    </a>
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modal for High Absence Alert (Auto-show if critical) -->
+<!-- Modal for High Absence Alert -->
 {% if high_absence_subjects %}
     <div class="modal fade" id="absenceModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content border-danger">
-                <div class="modal-header bg-danger text-white">
+                <div class="modal-header">
                     <h5 class="modal-title">🚨 CRITICAL Attendance Alert</h5>
                 </div>
                 <div class="modal-body">
@@ -139,13 +224,13 @@
                         {% for subject in high_absence_subjects %}
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 <span>{{ subject.get_name_display }}</span>
-                                <span class="badge bg-danger rounded-pill">{{ subject.absence_count }} absences</span>
+                                <span class="badge bg-danger rounded-pill">{{ subject.absence_count }}</span>
                             </li>
                         {% endfor %}
                     </ul>
                     <p class="mt-3 mb-0">
                         <small class="text-danger">
-                            <strong>⚠️ IMPORTANT:</strong> You must contact your teacher immediately to discuss these absences. This may affect your academic standing.
+                            <strong>⚠️ IMPORTANT:</strong> Contact your teacher immediately. This may affect your academic standing.
                         </small>
                     </p>
                 </div>
@@ -157,30 +242,6 @@
         </div>
     </div>
 {% endif %}
-<!-- Existing content... -->
-
-<!-- Medical Leave Section -->
-<div class="col-md-6 mb-4">
-    <div class="card border-info">
-        <div class="card-header bg-info text-white">
-            <h5>🏥 Medical Leave</h5>
-        </div>
-        <div class="card-body">
-            <p>Need medical attention or leave?</p>
-            <a href="{% url 'medical_leave_request' %}" class="btn btn-info">
-                📝 Request Medical Leave
-            </a>
-            <a href="{% url 'student_medical_leaves' %}" class="btn btn-outline-info">
-                📋 View My Requests
-            </a>
-        </div>
-    </div>
-</div>
-
-
-<!-- Medical Leave Section -->
-
-
 
 <script>
     // Show modal on page load if there are critical absences
@@ -197,44 +258,4 @@
     }
 </script>
 
-<style>
-    .absence-badge {
-        float: right;
-        background-color: #dc3545;
-        color: white;
-        padding: 5px 10px;
-        border-radius: 5px;
-        font-size: 12px;
-    }
-
-    .card {
-        transition: all 0.3s ease;
-        border-radius: 8px;
-    }
-
-    .card:hover {
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        transform: translateY(-2px);
-    }
-
-    .btn-lg {
-        font-weight: 600;
-        border-radius: 6px;
-    }
-
-    .modal-content {
-        border-radius: 10px;
-    }
-
-    .alert {
-        border-radius: 8px;
-        margin-bottom: 1rem;
-    }
-
-    @media print {
-        .btn, .btn-group, button, a.btn, .alert {
-            display: none;
-        }
-    }
-</style>
 {% endblock %}

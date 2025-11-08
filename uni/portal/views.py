@@ -39,39 +39,34 @@ def signup(request):
         send_otp_via_sms(mobile_number, otp)
         
         request.session['user_id'] = user.id
-        messages.success(request, 'OTP sent to your mobile number')
         return redirect('verify_otp')
     
     return render(request, 'portal/signup.html')
 
 
 def verify_otp_view(request):
-    """Verify OTP and redirect based on role"""
+    """Verify OTP and redirect based on role (OTP skipped)"""
     user_id = request.session.get('user_id')
     if not user_id:
         return redirect('signup')
-    
+
     user = get_object_or_404(User, id=user_id)
-    
-    if request.method == 'POST':
-        otp = request.POST.get('otp')
-        
-        if verify_otp(otp, user.otp):
-            user.is_mobile_verified = True
-            user.otp = None
-            user.save()
-            
-            # Create profile based on role
-            if user.role == 'student':
-                return redirect('student_subject_enrollment', user_id=user.id)
-            elif user.role == 'teacher':
-                return redirect('teacher_subject_selection', user_id=user.id)
-            elif user.role == 'doctor':
-                return redirect('doctor_profile_setup', user_id=user.id)
-        else:
-            messages.error(request, 'Invalid OTP')
-    
-    return render(request, 'portal/verify_otp.html', {'user': user})
+
+    # ✅ Skip OTP verification completely
+    user.is_mobile_verified = True
+    user.otp = None
+    user.save()
+
+    # Directly redirect based on role
+    if user.role == 'student':
+        return redirect('student_subject_enrollment', user_id=user.id)
+    elif user.role == 'teacher':
+        return redirect('teacher_subject_selection', user_id=user.id)
+    elif user.role == 'doctor':
+        return redirect('doctor_profile_setup', user_id=user.id)
+
+    return redirect('login')
+
 
 
 def student_subject_enrollment(request, user_id):
@@ -164,10 +159,9 @@ def login_view(request):
                 user.otp = otp
                 user.save()
                 
-                send_otp_via_sms(mobile_number, otp)
+               # send_otp_via_sms(mobile_number, otp)
                 
                 request.session['login_user_id'] = user.id
-                messages.success(request, 'OTP sent to your mobile')
                 return redirect('login_verify_otp')
             else:
                 messages.error(request, 'Invalid credentials')
@@ -178,31 +172,28 @@ def login_view(request):
 
 
 def login_verify_otp(request):
-    """Login OTP verification"""
+    """Login OTP verification (skipped)"""
     user_id = request.session.get('login_user_id')
     if not user_id:
         return redirect('login')
-    
+
     user = get_object_or_404(User, id=user_id)
-    
-    if request.method == 'POST':
-        otp = request.POST.get('otp')
-        
-        if verify_otp(otp, user.otp):
-            user.otp = None
-            user.save()
-            login(request, user)
-            
-            if user.role == 'student':
-                return redirect('student_dashboard')
-            elif user.role == 'teacher':
-                return redirect('teacher_dashboard')
-            elif user.role == 'doctor':
-                return redirect('doctor_dashboard')
-        else:
-            messages.error(request, 'Invalid OTP')
-    
-    return render(request, 'portal/login_verify_otp.html')
+
+    # ✅ Skip OTP step – directly log in
+    user.otp = None
+    user.save()
+    login(request, user)
+
+    # Redirect based on role
+    if user.role == 'student':
+        return redirect('student_dashboard')
+    elif user.role == 'teacher':
+        return redirect('teacher_dashboard')
+    elif user.role == 'doctor':
+        return redirect('doctor_dashboard')
+
+    return redirect('login')
+
 
 
 def logout_view(request):
@@ -617,3 +608,6 @@ def finalize_medical_leave(request, leave_id):
     
     return render(request, 'portal/finalize_medical_leave.html', {'leave_request': leave_request})
 
+def landing_page(request):
+    """Landing page for visitors"""
+    return render(request, 'portal/landing.html')
