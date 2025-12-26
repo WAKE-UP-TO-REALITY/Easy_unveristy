@@ -28,7 +28,8 @@ SECRET_KEY = 'django-insecure-bb_0wvp@pzbv3_1j!t4uppw$!w#hm01nf%o_*r^__fzc+20hy0
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = os.environ.get('DJANGO_ALLOWED_HOSTS', 'localhost').split(',')
+
 
 
 # Application definition
@@ -153,3 +154,4 @@ if os.environ.get('DATABASE_URL'):
     DATABASES['default'] = dj_database_url.parse(os.environ.get('DATABASE_URL'))
 
 #SESSION_COOKIE_AGE = 86400
+#psql 'postgresql://neondb_owner:npg_UfsWhNI20qun@ep-plain-waterfall-ahn6rvuc-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require'
