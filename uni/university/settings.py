@@ -154,4 +154,4 @@ if os.environ.get('DATABASE_URL'):
     DATABASES['default'] = dj_database_url.parse(os.environ.get('DATABASE_URL'))
 
 #SESSION_COOKIE_AGE = 86400
-#psql 'postgresql://neondb_owner:npg_UfsWhNI20qun@ep-plain-waterfall-ahn6rvuc-pooler.c-3.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require'
+
